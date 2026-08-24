@@ -1,0 +1,5 @@
+# Windows'ta klonlansa bile shell script / conf dosyaları LF kalmalı,
+# aksi halde Docker imajı içinde CRLF nedeniyle çalışmazlar.
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.so binary
