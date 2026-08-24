@@ -21,8 +21,8 @@ FROM ${NPM_IMAGE}:${NPM_VERSION} AS builder
 ARG NTLM_MODULE_REPO=https://github.com/gabihodoroaga/nginx-ntlm-module.git
 ARG NTLM_MODULE_REF=3da77b0cb30e517dfee01d7e7f7d649144d24051
 
-COPY scripts/build-ntlm-module.sh /tmp/build-ntlm-module.sh
-RUN /tmp/build-ntlm-module.sh
+COPY --chmod=0755 scripts/build-ntlm-module.sh /tmp/build-ntlm-module.sh
+RUN bash /tmp/build-ntlm-module.sh
 
 # -----------------------------------------------------------------------------
 # 2. Aşama: son imaj (temel imaj + .so + load_module)
