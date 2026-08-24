@@ -186,12 +186,13 @@ numarası girilebilir).
 1. Repo'yu GitHub'a push edin.
 2. Settings > Actions > General > Workflow permissions →
    *Read and write permissions* (PR açan workflow için gerekli).
-3. İlk build sonrası paket **private** olur. Herkese açık olsun isterseniz:
-   GitHub profili > Packages > `npm-with-ntlm-module` > Package settings >
-   *Change visibility → Public*. Private bırakırsanız sunucuda giriş gerekir:
+3. Paket, repo public olduğu için anonim olarak çekilebilir (doğrulandı).
+   Repo private ise paket de private olur; o durumda sunucuda giriş gerekir:
    ```bash
    echo $GHCR_PAT | docker login ghcr.io -u halitdogmen --password-stdin
    ```
+   Görünürlük: GitHub profili > Packages > `npm-with-ntlm-module` >
+   Package settings > *Change visibility*.
 4. `arm64` derlemesi istemiyorsanız Run workflow ekranından kapatabilir veya
    `build.yml` içindeki matristen çıkarabilirsiniz.
 
