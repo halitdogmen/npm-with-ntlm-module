@@ -1,0 +1,20 @@
+services:
+  npm-ntlm:
+    # Hazır imaj (pipeline tarafından GHCR'a push edilir):
+    image: ghcr.io/OWNER/npm-with-ntlm-module:latest
+    # Yerel derlemek için üstteki satırı yorumlayıp aşağıdakini açın:
+    # build:
+    #   context: .
+    #   args:
+    #     NPM_VERSION: "2.15.1"
+    container_name: npm-ntlm
+    restart: unless-stopped
+    ports:
+      - "80:80"     # HTTP
+      - "443:443"   # HTTPS
+      - "81:81"     # Yönetim arayüzü
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    environment:
+      TZ: Europe/Istanbul

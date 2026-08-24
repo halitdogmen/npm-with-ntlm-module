@@ -1,0 +1,49 @@
+name: check-upstream
+
+# jc21/nginx-proxy-manager yeni sürüm çıkardığında NPM_VERSION dosyasını
+# güncelleyen bir Pull Request açar. PR'ı merge ettiğinizde build workflow'u
+# tetiklenir ve yeni sürüm GHCR'a push edilir.
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: En güncel NPM sürümünü bul
+        id: latest
+        run: |
+          CURRENT="$(tr -d ' \n\r' < NPM_VERSION)"
+          LATEST="$(curl -fsSL 'https://hub.docker.com/v2/repositories/jc21/nginx-proxy-manager/tags?page_size=100&ordering=last_updated' \
+            | jq -r '.results[].name' \
+            | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sort -V | tail -n1)"
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+          echo "latest=$LATEST"   >> "$GITHUB_OUTPUT"
+          echo "Mevcut: $CURRENT / En güncel: $LATEST"
+
+      - name: NPM_VERSION dosyasını güncelle
+        if: steps.latest.outputs.latest != '' && steps.latest.outputs.latest != steps.latest.outputs.current
+        run: echo "${{ steps.latest.outputs.latest }}" > NPM_VERSION
+
+      - name: Pull Request aç
+        if: steps.latest.outputs.latest != '' && steps.latest.outputs.latest != steps.latest.outputs.current
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/npm-${{ steps.latest.outputs.latest }}
+          title: "NPM ${{ steps.latest.outputs.latest }} sürümüne geç"
+          commit-message: "chore: jc21/nginx-proxy-manager ${{ steps.latest.outputs.latest }}"
+          body: |
+            jc21/nginx-proxy-manager **${{ steps.latest.outputs.latest }}** yayınlandı
+            (mevcut: ${{ steps.latest.outputs.current }}).
+
+            Bu PR merge edildiğinde imaj yeni sürüm üzerine yeniden derlenip
+            GHCR'a push edilir.
